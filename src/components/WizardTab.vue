@@ -2,7 +2,7 @@
     <div class="WizardTab" :class="{'active': props.active}">
         <div class="WizardTab__top">
             <div class="WizardTab__title">{{props.title}}</div>
-            <div class="WizardTab__price">{{numToPrice(computed_value)}}</div>
+            <div class="WizardTab__price">{{numToPrice(tab_summary)}}</div>
         </div>
         <div class="WizardTab__content">
             <div class="WizardTab__left">
@@ -24,7 +24,7 @@
                         {{checkbox.title}}
                     </div>
                 </div>
-                <div class="btn WizardTab__choose" :class="{'active': props.active}" @click="emit('updateTab', {tab_summary: computed_value})">{{props.active ? 'Выбрано' : 'Выбрать'}}</div>
+                <div class="btn WizardTab__choose" :class="{'active': props.active}" @click="emit('updateTab', {tab_summary: tab_summary})">{{props.active ? 'Выбрано' : 'Выбрать'}}</div>
             </div>
         </div>
     </div>
@@ -33,31 +33,37 @@
 <script lang="ts" setup>
 import { defineProps, defineEmits, computed, ref } from 'vue'
 import { numToPrice } from '@/helpers/index'
+
+interface Option {
+    title: string;
+    price: number;
+}
+interface Select {
+    title: string;
+    items: Option[];
+}
 interface Props {
     active: boolean;
     title: string;
     price_default: number;
-    options: Array;
-    select: Array;
+    options: Option[];
+    select: Select[];
 }
 const props = defineProps<Props>()
 const emit = defineEmits(['updateTab', 'updateTabSummary'])
-interface Dictionary<T> {
-    [index: string]: T;
-}
-const selectValues = ref<Dictionary<number>>({})
-function selectChange(value, index) {
+const selectValues = ref<Record<string, number>>({})
+function selectChange(value: string, index: number) {
     selectValues.value[index] = parseInt(value)
     if (!props.active) return
-    emit('updateTabSummary', {tab_summary: computed_value.value})
+    emit('updateTabSummary', {tab_summary: tab_summary.value})
 }
-const checkedOptions = ref<Dictionary<number>>({})
-function updateOption(i) {
+const checkedOptions = ref<Record<string, number>>({})
+function updateOption(i: number) {
     checkedOptions.value[i] !== undefined ? delete checkedOptions.value[i] : checkedOptions.value[i] = i
     if (!props.active) return
-    emit('updateTabSummary', {tab_summary: computed_value.value})
+    emit('updateTabSummary', {tab_summary: tab_summary.value})
 }
-const computed_value = computed(() => {
+const tab_summary = computed(() => {
     let summ = props.price_default
 
     for (const optionKey in checkedOptions.value) {
@@ -93,7 +99,7 @@ const computed_value = computed(() => {
     }
     &.active {
         &::before {
-            background-color: lightgreen;
+            background-color: #2fcb5a;
         }
     }
     &__top {
@@ -125,7 +131,7 @@ const computed_value = computed(() => {
         background-color: rgba(0,0,0,.1);
         color: black;
         &.active {
-            background-color: lightgreen;
+            background-color: #2fcb5a;
             color: white;
         }
     }
@@ -144,12 +150,29 @@ const computed_value = computed(() => {
     gap: 5px;
 }
 .checkbox {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border: 1px solid grey;
     border-radius: 5px;
     width: 10px;
     height: 10px;
+    &::after {
+        content: '';
+        position: absolute;
+        width: 3px;
+        height: 7px;
+        transform: rotate(45deg) translateY(-3px);
+        display: none;
+        border: 2px solid black;
+        border-left: none;
+        border-top: none;
+    }
     &.active {
-        background-color: black;
+        &::after {
+            display: block;
+        }
     }
 }
 .select-container {
