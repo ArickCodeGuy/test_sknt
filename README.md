@@ -11,3 +11,6 @@ HTML, SCSS
 TypeScript  
   
 Не использовал pinia (в основном использую Vuex, обошелся без него), vite (hot reload плохо работает)
+## Установка
+```npm i```  
+```npm run dev```  
