@@ -45,7 +45,9 @@ const emit = defineEmits(['updateActiveTab', 'updateActiveTabSummary'])
 
 <style lang="scss" scoped>
 .WizardTabs {
+    overflow: hidden;
     display: grid;
     grid-gap: 10px;
+    max-height: 1000px;
 }
 </style>

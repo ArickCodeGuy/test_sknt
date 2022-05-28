@@ -24,7 +24,7 @@
                         {{checkbox.title}}
                     </div>
                 </div>
-                <div class="btn WizardTab__choose" :class="{'active': props.active}" @click="emit('updateTab', {tab_summary: tab_summary})">{{props.active ? 'Выбрано' : 'Выбрать'}}</div>
+                <div class="btn WizardTab__choose-btn" :class="{'active': props.active}" @click="emit('updateTab', {tab_summary: tab_summary})">{{props.active ? 'Выбрано' : 'Выбрать'}}</div>
             </div>
         </div>
     </div>
@@ -52,18 +52,18 @@ interface Props {
 const props = defineProps<Props>()
 const emit = defineEmits(['updateTab', 'updateTabSummary'])
 const selectValues = ref<Record<string, number>>({})
-function selectChange(value: string, index: number) {
+function selectChange(value: string, index: number): void {
     selectValues.value[index] = parseInt(value)
     if (!props.active) return
     emit('updateTabSummary', {tab_summary: tab_summary.value})
 }
 const checkedOptions = ref<Record<string, number>>({})
-function updateOption(i: number) {
+function updateOption(i: number): void {
     checkedOptions.value[i] !== undefined ? delete checkedOptions.value[i] : checkedOptions.value[i] = i
     if (!props.active) return
     emit('updateTabSummary', {tab_summary: tab_summary.value})
 }
-const tab_summary = computed(() => {
+const tab_summary = computed<number>(() => {
     let summ = props.price_default
 
     for (const optionKey in checkedOptions.value) {
@@ -103,16 +103,24 @@ const tab_summary = computed(() => {
         }
     }
     &__top {
-        display: flex;
-        justify-content: space-between;
         margin-bottom: 1em;
+        display: grid;
+        grid-gap: 10px;
+        @media (min-width: 768px) {
+            display: flex;
+            justify-content: space-between;
+        }
     }
     &__title {
         font-weight: bold;
     }
     &__content {
-        display: flex;
-        gap: 10px;
+        display: grid;
+        grid-gap: 20px;
+        @media (min-width: 768px) {
+            display: flex;
+            gap: 10px;
+        }
     }
     &__left {
         width: 100%;
@@ -120,12 +128,18 @@ const tab_summary = computed(() => {
     &__separator {
         width: 1px;
         background-color: grey;
+        display: none;
+        @media (min-width: 768px) {
+            display: block;
+        }
     }
     &__right {
-        width: 200px;
-        flex-shrink: 0;
+        @media (min-width: 768px) {
+            width: 200px;
+            flex-shrink: 0;
+        }
     }
-    &__choose {
+    &__choose-btn {
         margin-top: 10px;
         text-align: center;
         background-color: rgba(0,0,0,.1);
