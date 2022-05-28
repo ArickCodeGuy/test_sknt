@@ -50,7 +50,18 @@ interface Props {
     select: Select[];
 }
 const props = defineProps<Props>()
-const emit = defineEmits(['updateTab', 'updateTabSummary'])
+
+// const emit = defineEmits(['updateTab', 'updateTabSummary'])
+/*eslint-disable*/
+const emit = defineEmits<{
+    (e: 'updateTab', {
+        tab_summary: number
+    }) : void
+    (e: 'updateTabSummary', {
+        tab_summary: number
+    }) : void
+}>()
+
 const selectValues = ref<Record<string, number>>({})
 function selectChange(value: string, index: number): void {
     selectValues.value[index] = parseInt(value)
