@@ -10,75 +10,64 @@
             </div>
             <div class="WizardTab__separator"></div>
             <div class="WizardTab__right">
-                <div v-for="(select, selectIndex) in props.select" :key="selectIndex" class="select-container">
+                <div v-for="(select, select_index) in props.select" :key="select_index" class="select-container">
                     <div>
                         <div class="select__title">{{select.title}}</div>
-                        <select class="select" @change="selectChange($event.target.value, selectIndex)">
+                        <select class="select" :value="select.active_option ?? 0" @change="emit('select_change', {select_index, option_index: parseInt($event.target.value)})">
                             <option :value="i" v-for="(item, i) in select.items" :key="i">{{item.title}}</option>
                         </select>
                     </div>
                 </div>
                 <div v-if="props.options.length" class="checkboxes-container">
-                    <div v-for="(checkbox, checkboxIndex) in props.options" :key="checkbox.title" class="checkbox-container" @click="updateOption(checkboxIndex)">
-                        <div class="checkbox" :class="{'active': checkedOptions[checkboxIndex] !== undefined}"></div>
+                    <div v-for="(checkbox, checkboxIndex) in props.options" :key="checkbox.title" class="checkbox-container" @click="emit('option_change', checkboxIndex)">
+                        <div class="checkbox" :class="{'active': checkbox.active === true}"></div>
                         {{checkbox.title}}
                     </div>
                 </div>
-                <div class="btn WizardTab__choose-btn" :class="{'active': props.active}" @click="emit('updateTab', {tab_summary: tab_summary})">{{props.active ? 'Выбрано' : 'Выбрать'}}</div>
+                <div class="btn WizardTab__choose-btn" :class="{'active': props.active}" @click="emit('choose_variant')">{{props.active ? 'Выбрано' : 'Выбрать'}}</div>
             </div>
         </div>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { defineProps, defineEmits, computed, ref } from 'vue'
+import { defineProps, defineEmits, computed } from 'vue'
 import { numToPrice } from '@/helpers/index'
 
 interface Option {
     title: string;
     price: number;
+    active?: boolean;
 }
 interface Select {
     title: string;
     items: Option[];
+    active_option?: number;
 }
 interface Props {
-    active: boolean;
+    active?: boolean;
     title: string;
     price_default: number;
     options: Option[];
     select: Select[];
 }
+
 const props = defineProps<Props>()
-const emit = defineEmits(['updateTab', 'updateTabSummary'])
-const selectValues = ref<Record<string, number>>({})
-function selectChange(value: string, index: number): void {
-    selectValues.value[index] = parseInt(value)
-    if (!props.active) return
-    emit('updateTabSummary', {tab_summary: tab_summary.value})
-}
-const checkedOptions = ref<Record<string, number>>({})
-function updateOption(i: number): void {
-    checkedOptions.value[i] !== undefined ? delete checkedOptions.value[i] : checkedOptions.value[i] = i
-    if (!props.active) return
-    emit('updateTabSummary', {tab_summary: tab_summary.value})
-}
+
 const tab_summary = computed<number>(() => {
-    let summ = props.price_default
+    let summ = 0
+    summ += props.price_default
+    props.select.forEach(select => {
+        const active_option = select.active_option ?? 0
+        summ += select.items[active_option].price
+    })
 
-    for (const optionKey in checkedOptions.value) {
-        const chosenOption = props.options[optionKey]
-        summ += chosenOption.price
-    }
-
-    for (const selectKey in selectValues.value) {
-        const itemKey = selectValues.value[selectKey]
-        const selectedOption = props.select[selectKey].items[itemKey]
-        summ += selectedOption.price
-    }
-
+    props.options.forEach(option => {
+        option.active ? summ += option.price : false
+    })
     return summ
 })
+const emit = defineEmits(['option_change', 'select_change'])
 </script>
 
 <style lang="scss" scoped>

@@ -1,76 +1,53 @@
 <template>
     <div id="app">
         <div class="container">
-            <template v-for="(step, stepIndex) in wizardDataArray" :key="stepIndex">
-                <div class="heading">{{step.title}}</div>
+            <template v-for="(item, item_index) in cart.data" :key="item_index">
+                <div class="heading">{{item.title}}</div>
                 <transition name="WizardTabs">
-                    <WizardTabs
-                        v-show="stepIndex === activeStep"
-                        :tabs="step.variants"
-                        :activeTab="step.activeTab"
-                        @updateActiveTab="updateActiveTab({step: stepIndex, ...$event})"
-                        @updateActiveTabSummary="updateActiveTabSummary({step: stepIndex, ...$event})"
-                    />
+                    <div
+                        v-show="item_index === activeStep"
+                        class="WizardTabs"
+                    >
+                        <WizardTab
+                            v-for="(variant, variant_index) in item.variants"
+                            :class="{'active': item.active_variant === variant_index}"
+                            :key="variant_index"
+                            :title="variant.title"
+                            :price_default="variant.price_default"
+                            :options="variant.options"
+                            :select="variant.select"
+                            :active="item.activeTab === variant_index"
+                            @option_change="cart.changeOption({item_index, variant_index, option_index: $event})"
+                            @select_change="cart.changeSelect({item_index, variant_index, ...$event})"
+                            @choose_variant="choose_variant({item_index, variant_index})"
+                        >
+                            <template #left>{{variant.description}}</template>
+                        </WizardTab>
+                    </div>
                 </transition>
             </template>
             <div class="btns">
                 <button :disabled="activeStep === 0" class="btn" @click="activeStep--">Назад</button>
             </div>
-            <div class="btn summary"><span>Итого к оплате:</span> <span>{{numToPrice(summary)}}</span></div>
+            <div class="btn summary"><span>Итого к оплате:</span> <span>{{numToPrice(cart.summary)}}</span></div>
         </div>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
-import WizardTabs from '@/components/WizardTabs.vue'
+import { ref } from 'vue'
+import WizardTab from '@/components/WizardTab.vue'
+// import WizardTabs from '@/components/WizardTabs.vue'
 import { numToPrice } from '@/helpers/index'
-import data from '@/data.json'
 
-interface Option {
-    title: string;
-    price: number;
-}
-interface Select {
-    title: string;
-    items: Option[];
-}
-interface WizardVariant {
-    title: string;
-    description: string;
-    color: string;
-    price_default: number;
-    options: Option[];
-    select: Select[];
-}
-interface WizardData {
-    title: string;
-    activeTab: number;
-    variants: WizardVariant[];
-}
-const wizardDataArray = ref<WizardData[]>(data)
+import { useCart } from '@/store/index'
+const cart = useCart()
+
 const activeStep = ref<number>(0)
-const stepsSumm = ref<Record<string, number>>({})
-const summary = computed<number>(() => {
-    let summ = 0
-    for (const stepKey in stepsSumm.value) {
-        summ += stepsSumm.value[stepKey]
-    }
-    return summ
-})
-function updateActiveTab({ step, tab, tab_summary }: {step: number, tab: number, tab_summary: number}): void {
-    const stepToActivate = wizardDataArray.value[step]
-    stepToActivate.activeTab = tab
-    stepsSumm.value[step] = tab_summary
+
+function choose_variant(args: { item_index: number, variant_index: number}) {
+    cart.changeTab(args)
     activeStep.value++
-    if (activeStep.value === wizardDataArray.value.length) {
-        // Для рендера до алерта
-        setTimeout(() => alert('Done'), 0)
-        return
-    }
-}
-function updateActiveTabSummary({ step, tab_summary }: {step: number, tab_summary: number}): void {
-    stepsSumm.value[step] = tab_summary
 }
 </script>
 
@@ -146,5 +123,11 @@ body {
 .WizardTabs-enter-from,
 .WizardTabs-leave-to {
     max-height: 0 !important;
+}
+.WizardTabs {
+    overflow: hidden;
+    display: grid;
+    grid-gap: 10px;
+    max-height: 1000px;
 }
 </style>
