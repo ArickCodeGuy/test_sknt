@@ -31,7 +31,7 @@ TypeScript
 ```npm run serve```
 
 ## Макет
-expected_design.png
+![Макет](expected_design.png)
 
 ## Результат
-design_result.jpg
+![Результат](design_result.jpg)
