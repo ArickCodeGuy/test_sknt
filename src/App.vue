@@ -1,36 +1,38 @@
 <template>
     <div id="app">
-        <div class="container">
-            <template v-for="(item, item_index) in cart.data" :key="item_index">
-                <div class="heading">{{item.title}}</div>
-                <transition name="WizardTabs">
-                    <div
-                        v-show="item_index === activeStep"
-                        class="WizardTabs"
-                    >
-                        <WizardTab
-                            v-for="(variant, variant_index) in item.variants"
-                            :class="{'active': item.active_variant === variant_index}"
-                            :key="variant_index"
-                            :title="variant.title"
-                            :price_default="variant.price_default"
-                            :options="variant.options"
-                            :select="variant.select"
-                            :active="item.activeTab === variant_index"
-                            @option_change="cart.changeOption({item_index, variant_index, option_index: $event})"
-                            @select_change="cart.changeSelect({item_index, variant_index, ...$event})"
-                            @choose_variant="choose_variant({item_index, variant_index})"
+        <section class="section">
+            <div class="container">
+                <template v-for="(item, item_index) in cart.data" :key="item_index">
+                    <div class="heading">{{item.title}}</div>
+                    <transition name="WizardTabs">
+                        <div
+                            v-show="item_index === activeStep"
+                            class="WizardTabs"
                         >
-                            <template #left>{{variant.description}}</template>
-                        </WizardTab>
-                    </div>
-                </transition>
-            </template>
-            <div class="btns">
-                <button :disabled="activeStep === 0" class="btn" @click="activeStep--">Назад</button>
+                            <WizardTab
+                                v-for="(variant, variant_index) in item.variants"
+                                :class="{'active': item.active_variant === variant_index}"
+                                :key="variant_index"
+                                :title="variant.title"
+                                :price_default="variant.price_default"
+                                :options="variant.options"
+                                :select="variant.select"
+                                :active="item.active_variant === variant_index"
+                                @option_change="cart.changeOption({item_index, variant_index, option_index: $event})"
+                                @select_change="cart.changeSelect({item_index, variant_index, ...$event})"
+                                @choose_variant="choose_variant({item_index, variant_index})"
+                            >
+                                <template #left>{{variant.description}}</template>
+                            </WizardTab>
+                        </div>
+                    </transition>
+                </template>
+                <div class="btns">
+                    <button :disabled="activeStep === 0" class="btn" @click="activeStep--">Назад</button>
+                </div>
+                <div class="btn summary"><span>Итого к оплате:</span> <span>{{numToPrice(cart.summary)}}</span></div>
             </div>
-            <div class="btn summary"><span>Итого к оплате:</span> <span>{{numToPrice(cart.summary)}}</span></div>
-        </div>
+        </section>
     </div>
 </template>
 
@@ -55,10 +57,14 @@ function choose_variant(args: { item_index: number, variant_index: number}) {
 body {
     margin: 0;
     font-family: 'Arial';
-    font-size: 12px;
+    font-size: 11px;
     @media (min-width: 768px) {
-        font-size: 16px;
+        font-size: 14px;
     }
+}
+.section {
+    margin-top: 40px;
+    margin-bottom: 40px;
 }
 .container {
     max-width: 1200px;
@@ -101,14 +107,20 @@ body {
     border-radius: 5px;
     color: white;
     cursor: pointer;
+    transition: .3s;
     &:disabled {
         filter: grayscale(1);
         cursor: auto;
+    }
+    &:hover, &.active {
+        background-color: #2fcb5a;
+        color: #ffffff;
     }
 }
 .summary {
     cursor: auto;
     display: flex;
+    font-weight: bold;
     justify-content: space-between;
     text-transform: uppercase;
     margin-top: 20px;

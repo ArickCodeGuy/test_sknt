@@ -21,7 +21,7 @@
                 <div v-if="props.options.length" class="checkboxes-container">
                     <div v-for="(checkbox, checkboxIndex) in props.options" :key="checkbox.title" class="checkbox-container" @click="emit('option_change', checkboxIndex)">
                         <div class="checkbox" :class="{'active': checkbox.active === true}"></div>
-                        {{checkbox.title}}
+                        <div class="checkbox-text">{{checkbox.title}}</div>
                     </div>
                 </div>
                 <div class="btn WizardTab__choose-btn" :class="{'active': props.active}" @click="emit('choose_variant')">{{props.active ? 'Выбрано' : 'Выбрать'}}</div>
@@ -106,7 +106,7 @@ const emit = defineEmits(['option_change', 'select_change'])
     &__content {
         display: grid;
         grid-gap: 20px;
-        @media (min-width: 768px) {
+        @media (min-width: 576px) {
             display: flex;
             gap: 10px;
         }
@@ -118,12 +118,12 @@ const emit = defineEmits(['option_change', 'select_change'])
         width: 1px;
         background-color: grey;
         display: none;
-        @media (min-width: 768px) {
+        @media (min-width: 576px) {
             display: block;
         }
     }
     &__right {
-        @media (min-width: 768px) {
+        @media (min-width: 576px) {
             width: 200px;
             flex-shrink: 0;
         }
@@ -161,6 +161,7 @@ const emit = defineEmits(['option_change', 'select_change'])
     border-radius: 5px;
     width: 10px;
     height: 10px;
+    flex-shrink: 0;
     &::after {
         content: '';
         position: absolute;
@@ -168,7 +169,7 @@ const emit = defineEmits(['option_change', 'select_change'])
         height: 7px;
         transform: rotate(45deg) translateY(-3px);
         display: none;
-        border: 2px solid black;
+        border: 2px solid grey;
         border-left: none;
         border-top: none;
     }
@@ -177,6 +178,11 @@ const emit = defineEmits(['option_change', 'select_change'])
             display: block;
         }
     }
+}
+.checkbox-text {
+    width: 100%;
+    color: grey;
+    text-align: center;
 }
 .select-container {
     display: grid;
