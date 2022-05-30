@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import Cart from './data.json'
+import Cart from '@/data.json'
 
 interface Option {
     title: string;
